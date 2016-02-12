@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Social
 
 class ViewController: UIViewController, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
 
@@ -183,6 +184,54 @@ class ViewController: UIViewController, UINavigationControllerDelegate, UIImageP
         alertController.addAction(cancelAction)
         
         presentViewController(alertController, animated: true, completion: nil)
+    }
+    
+    //SNSに投稿するメソッド(FacebookかTwitterのソースタイプが引き数)
+    func postToSNS(serviceType: String) {
+        
+        //SLComposeViewControllerをインスタンス化し、ServiceTypeを指定
+        let myComposeView = SLComposeViewController(forServiceType: serviceType)
+        
+        //投稿するテキストを指定
+        myComposeView.setInitialText("PhotoMasterからの投稿")
+        
+        //投稿する画像を指定
+        myComposeView.addImage(photoImageView.image)
+        
+        //myComposeViewの画面遷移
+        self.presentViewController(myComposeView, animated: true, completion: nil)
+    }
+    
+    //「アップロード」ボタンを押した時に呼ばれるメソッド
+    @IBAction func uploadButtonTapped(sender: UIButton) {
+        
+        guard let _ = photoImageView.image else {
+            simpleAlert("画像がありません")
+            return
+        }
+        
+        let alertController = UIAlertController(title: "アップロード先を選択", message: nil, preferredStyle: .ActionSheet)
+        let firstAction = UIAlertAction(title: "Facebookに投稿", style: .Default) {
+            action in
+            self.postToSNS(SLServiceTypeFacebook)
+        }
+        let secondAction = UIAlertAction(title: "Twitterに投稿", style: .Default) {
+            action in
+            self.postToSNS(SLServiceTypeTwitter)
+        }
+        let thirdAction = UIAlertAction(title: "カメラロールに保存", style: .Default) {
+            action in
+            self.simpleAlert("アルバムに保存されました")
+        }
+        let cancelAction = UIAlertAction(title: "キャンセル", style: .Cancel, handler: nil)
+        
+        alertController.addAction(firstAction)
+        alertController.addAction(secondAction)
+        alertController.addAction(thirdAction)
+        alertController.addAction(cancelAction)
+        
+        self.presentViewController(alertController, animated: true, completion: nil)
+        
     }
     
     override func didReceiveMemoryWarning() {
